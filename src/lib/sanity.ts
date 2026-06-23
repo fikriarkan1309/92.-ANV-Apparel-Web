@@ -140,3 +140,105 @@ export async function fetchSanityPortfolio(): Promise<PortfolioItem[] | null> {
     return null;
   }
 }
+
+export interface SanityHomePageData {
+  heroTagline?: string;
+  heroTitle?: string;
+  heroDescription?: string;
+  heroCtaText?: string;
+  heroCtaLink?: string;
+  heroImages?: string[];
+  aboutBadge?: string;
+  aboutTitle?: string;
+  aboutDescription?: string;
+  aboutImage?: string;
+  aboutStatDpi?: string;
+  aboutStatDpiDesc?: string;
+  aboutStatSla?: string;
+  aboutStatSlaDesc?: string;
+  uspBadge?: string;
+  uspTitle?: string;
+  uspDescription?: string;
+  uspItems?: Array<{ title: string; description: string; icon: string }>;
+  whatsappNumber?: string;
+  faqs?: Array<{ question: string; answer: string }>;
+}
+
+export interface SanityGuidePageData {
+  badge?: string;
+  pageTitle?: string;
+  pageDescription?: string;
+  materialsHeading?: string;
+  materialsSubheading?: string;
+  calculatorHeading?: string;
+  calculatorDescription?: string;
+  sizeTableHeading?: string;
+}
+
+export async function fetchSanityHomePage(): Promise<SanityHomePageData | null> {
+  if (!sanityClient) return null;
+  try {
+    const data = await sanityClient.fetch(`*[_type == "homePage"][0]`);
+    if (!data) return null;
+    return {
+      heroTagline: data.heroTagline,
+      heroTitle: data.heroTitle,
+      heroDescription: data.heroDescription,
+      heroCtaText: data.heroCtaText,
+      heroCtaLink: data.heroCtaLink,
+      heroImages: data.heroImages && Array.isArray(data.heroImages)
+        ? data.heroImages.map((img: any) => resolveSanityImage(img)).filter(Boolean)
+        : undefined,
+      aboutBadge: data.aboutBadge,
+      aboutTitle: data.aboutTitle,
+      aboutDescription: data.aboutDescription,
+      aboutImage: resolveSanityImage(data.aboutImage) || undefined,
+      aboutStatDpi: data.aboutStatDpi,
+      aboutStatDpiDesc: data.aboutStatDpiDesc,
+      aboutStatSla: data.aboutStatSla,
+      aboutStatSlaDesc: data.aboutStatSlaDesc,
+      uspBadge: data.uspBadge,
+      uspTitle: data.uspTitle,
+      uspDescription: data.uspDescription,
+      uspItems: data.uspItems && Array.isArray(data.uspItems)
+        ? data.uspItems.map((u: any) => ({
+            title: u.title || '',
+            description: u.description || '',
+            icon: u.icon || 'Zap'
+          }))
+        : undefined,
+      whatsappNumber: data.whatsappNumber,
+      faqs: data.faqs && Array.isArray(data.faqs)
+        ? data.faqs.map((f: any) => ({
+            question: f.question || '',
+            answer: f.answer || ''
+          }))
+        : undefined,
+    };
+  } catch (err) {
+    console.warn('Graceful Sanity fallback: could not reach home page content.', err);
+    return null;
+  }
+}
+
+export async function fetchSanityGuidePage(): Promise<SanityGuidePageData | null> {
+  if (!sanityClient) return null;
+  try {
+    const data = await sanityClient.fetch(`*[_type == "guidePage"][0]`);
+    if (!data) return null;
+    return {
+      badge: data.badge,
+      pageTitle: data.pageTitle,
+      pageDescription: data.pageDescription,
+      materialsHeading: data.materialsHeading,
+      materialsSubheading: data.materialsSubheading,
+      calculatorHeading: data.calculatorHeading,
+      calculatorDescription: data.calculatorDescription,
+      sizeTableHeading: data.sizeTableHeading,
+    };
+  } catch (err) {
+    console.warn('Graceful Sanity fallback: could not reach guide page content.', err);
+    return null;
+  }
+}
+
