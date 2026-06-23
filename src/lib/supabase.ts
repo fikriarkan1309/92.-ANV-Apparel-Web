@@ -89,7 +89,13 @@ export async function fetchSupabaseOrders(): Promise<Order[] | null> {
       const customerName = row.customer_name || row.customerName || '';
       const teamName = row.team_name || row.teamName || '';
       const contactNumber = row.phone || row.contact_number || row.contactNumber || '';
-      const orderType = row.order_type || row.orderType || 'Jersey Futsal';
+      
+      const productType = row.product_type || row.productType || row.order_type || row.orderType || 'Jersey Setelan';
+      const productTypeCustom = row.product_type_custom || row.productTypeCustom || '';
+      const fabricType = row.fabric_type || row.fabricType || 'Dryfit Milano';
+      const fabricTypeCustom = row.fabric_type_custom || row.fabricTypeCustom || '';
+      const collarType = row.collar_type || row.collarType || '1';
+      
       const quantity = row.quantity !== undefined ? row.quantity : 1;
       const totalPrice = Number(row.total_price || row.totalPrice || 0);
       const status = row.status || 'Antrian Desain';
@@ -97,26 +103,41 @@ export async function fetchSupabaseOrders(): Promise<Order[] | null> {
       const shippingAddress = row.shipping_address || row.shippingAddress || '';
       const resi = row.resi || undefined;
       const courierName = row.courier_name || row.courierName || undefined;
+      
+      const hasNameCheckbox = row.has_name_checkbox !== undefined ? row.has_name_checkbox : (row.hasNameCheckbox !== undefined ? row.hasNameCheckbox : true);
+      const hasNumberCheckbox = row.has_number_checkbox !== undefined ? row.has_number_checkbox : (row.hasNumberCheckbox !== undefined ? row.hasNumberCheckbox : true);
+      
+      const roster = row.roster || [];
+      const sizingRoster = row.sizing_roster || row.sizingRoster || [];
+      const finishingOther = row.finishing_other || row.finishingOther || '';
+      
       const createdAt = row.created_at || row.createdAt || new Date().toISOString();
       const updatedAt = row.updated_at || row.updatedAt || new Date().toISOString();
-      const roster = row.roster || [];
 
       return {
         id,
         customerName,
         teamName,
         contactNumber,
-        orderType,
+        shippingAddress,
+        productType,
+        productTypeCustom,
+        fabricType,
+        fabricTypeCustom,
+        collarType,
         quantity,
         totalPrice,
         status,
         paymentStatus,
-        shippingAddress,
         resi,
         courierName,
+        hasNameCheckbox,
+        hasNumberCheckbox,
+        roster,
+        sizingRoster,
+        finishingOther,
         createdAt,
-        updatedAt,
-        roster
+        updatedAt
       };
     }) || [];
 
@@ -220,7 +241,11 @@ export async function saveSupabaseOrder(order: Order): Promise<boolean> {
     team_name: order.teamName,
     phone: order.contactNumber, // map to WA/phone as literally seen in user screenshot!
     contact_number: order.contactNumber, // also map to contact_number in case
-    order_type: order.orderType,
+    product_type: order.productType,
+    product_type_custom: order.productTypeCustom || null,
+    fabric_type: order.fabricType,
+    fabric_type_custom: order.fabricTypeCustom || null,
+    collar_type: order.collarType,
     quantity: order.quantity,
     total_price: order.totalPrice,
     status: order.status,
@@ -228,7 +253,11 @@ export async function saveSupabaseOrder(order: Order): Promise<boolean> {
     shipping_address: order.shippingAddress,
     resi: order.resi || null,
     courier_name: order.courierName || null,
-    roster: order.roster,
+    has_name_checkbox: order.hasNameCheckbox,
+    has_number_checkbox: order.hasNumberCheckbox,
+    roster: order.roster || [],
+    sizing_roster: order.sizingRoster || [],
+    finishing_other: order.finishingOther || '',
     created_at: order.createdAt,
     updated_at: order.updatedAt || new Date().toISOString(),
   };
@@ -244,15 +273,23 @@ export async function saveSupabaseOrder(order: Order): Promise<boolean> {
     customerName: order.customerName,
     teamName: order.teamName,
     contactNumber: order.contactNumber,
-    orderType: order.orderType,
+    productType: order.productType,
+    productTypeCustom: order.productTypeCustom || null,
+    fabricType: order.fabricType,
+    fabricTypeCustom: order.fabricTypeCustom || null,
+    collarType: order.collarType,
     quantity: order.quantity,
     totalPrice: order.totalPrice,
     status: order.status,
     paymentStatus: order.paymentStatus,
-    roster: order.roster,
     shippingAddress: order.shippingAddress,
     resi: order.resi || null,
     courierName: order.courierName || null,
+    hasNameCheckbox: order.hasNameCheckbox,
+    hasNumberCheckbox: order.hasNumberCheckbox,
+    roster: order.roster || [],
+    sizingRoster: order.sizingRoster || [],
+    finishingOther: order.finishingOther || '',
     createdAt: order.createdAt,
     updatedAt: order.updatedAt || new Date().toISOString(),
   };
