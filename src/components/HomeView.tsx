@@ -19,6 +19,7 @@ import { GlowCard } from './ui/spotlight-card';
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from './ui/carousel';
 import { Button } from './ui/button';
 import { showToast } from '../utils/toast';
+import { SanityHomePageData } from '../lib/sanity';
 
 interface HomeViewProps {
   orders: Order[];
@@ -26,11 +27,62 @@ interface HomeViewProps {
   categories?: ProductCatalogItem[];
   portfolio?: PortfolioItem[];
   fabrics?: FabricMaterial[];
+  homePageSettings?: SanityHomePageData | null;
 }
 
-export default function HomeView({ orders, onNavigate, categories, portfolio }: HomeViewProps) {
+export default function HomeView({ orders, onNavigate, categories, portfolio, homePageSettings }: HomeViewProps) {
   const finalCategories = categories && categories.length > 0 ? categories : CATEGORIES;
   const finalPortfolio = portfolio && portfolio.length > 0 ? portfolio : PORTFOLIO;
+
+  const heroTagline = homePageSettings?.heroTagline || "100% SUBLIMASI HIGH DEFINITION PRESISI";
+  const heroTitleString = homePageSettings?.heroTitle || "Wujudkan Identitas Tim Anda Dengan Kualitas Sublimasi Presisi";
+  const heroDescription = homePageSettings?.heroDescription || "ANV Apparel menghadirkan jersey olahraga sublimasi kelas profesional tingkat utama. Hasil cetak warna solid tajam, bahan kain dryfit premium sejuk, jahitan rantai kokoh tangguh, serta bergaransi pengerjaan selesai tepat waktu.";
+  const heroCtaText = homePageSettings?.heroCtaText || "Lacak Live Order";
+  const heroCtaLink = homePageSettings?.heroCtaLink || "#section-tracking";
+  
+  const heroImages = homePageSettings?.heroImages && homePageSettings.heroImages.length > 0 
+    ? homePageSettings.heroImages 
+    : [
+        "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1592656094267-764a45159073?q=80&w=600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1519766304817-4f37bda74a27?q=80&w=600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600&auto=format&fit=crop"
+      ];
+
+  const aboutBadge = homePageSettings?.aboutBadge || "Konveksi Profesional Kelas Juara";
+  const aboutTitle = homePageSettings?.aboutTitle || "ANV Apparel Menghidupkan Desain Tim Anda Tanpa Batas";
+  const aboutDescription = homePageSettings?.aboutDescription || "Kami adalah produsen pakaian olahraga khusus sublimasi (custom jersey sublimation) yang berdedikasi tinggi terhadap kualitas. Berlokasi strategis dengan peralatan cetak modern, kami mencakup seluruh aspek pembuatan apparel mulai dari konsultasi pola desain, pemilihan material berkualitas tinggi, hingga detail finis jahit rantai ganda yang tangkas.";
+  const aboutImage = homePageSettings?.aboutImage || "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?q=80&w=800&auto=format&fit=crop";
+
+  const aboutStatDpi = homePageSettings?.aboutStatDpi || "1200+ DPI";
+  const aboutStatDpiDesc = homePageSettings?.aboutStatDpiDesc || "Kejelasan detail & kerataan warna Epson TrueColor";
+  const aboutStatSla = homePageSettings?.aboutStatSla || "99.8%";
+  const aboutStatSlaDesc = homePageSettings?.aboutStatSlaDesc || "SLA Pengerjaan On-Time terdaftar";
+
+  const uspBadge = homePageSettings?.uspBadge || "Keunggulan Kami";
+  const uspTitle = homePageSettings?.uspTitle || "Kenapa Mempercayakan ANV Apparel?";
+  const uspDescription = homePageSettings?.uspDescription || "Detail yang kami jaga menjadikan setiap jersey serasa seragam tim profesional liga utama.";
+
+  const whatsappNumber = homePageSettings?.whatsappNumber || '6281234567890';
+  const finalFaqs = homePageSettings?.faqs || FAQS;
+
+  const renderUspIcon = (iconName: string) => {
+    switch (iconName?.toLowerCase()) {
+      case 'zap': return <Zap className="w-7 h-7" />;
+      case 'shield': return <Shield className="w-7 h-7" />;
+      case 'clock': return <Clock className="w-7 h-7" />;
+      case 'thumbsup': return <ThumbsUp className="w-7 h-7" />;
+      case 'medal': return <Medal className="w-7 h-7" />;
+      case 'award': return <Award className="w-7 h-7" />;
+      case 'package': return <Package className="w-7 h-7" />;
+      case 'truck': return <Truck className="w-7 h-7" />;
+      default: return <Zap className="w-7 h-7" />;
+    }
+  };
 
   // Map finalCategories and finalPortfolio to Gallery4Item format
   const categoryGalleryItems = finalCategories.map((cat) => ({
@@ -94,7 +146,7 @@ export default function HomeView({ orders, onNavigate, categories, portfolio }: 
     const waText = encodeURIComponent(
       `Halo ANV Apparel, saya tertarik dengan portofolio "${item.title}" (${item.category}).\n\nDetail Spesifikasi:\n- Kerah: ${item.collarDetail}\n- Jahitan: ${item.stitchDetail}\n\nSaya ingin memesan desain yang mirip seperti ini. Bagaimana prosesnya?`
     );
-    window.open(`https://wa.me/6281234567890?text=${waText}`, '_blank');
+    window.open(`https://wa.me/${whatsappNumber}?text=${waText}`, '_blank');
   };
 
   const toggleFaq = (index: number) => {
@@ -132,28 +184,27 @@ export default function HomeView({ orders, onNavigate, categories, portfolio }: 
       
       {/* SECTION 1: HERO BANNER (AnimatedMarqueeHero) */}
       <AnimatedMarqueeHero
-        tagline="100% SUBLIMASI HIGH DEFINITION PRESISI"
+        tagline={heroTagline}
         title={
-          <>
-            Wujudkan Identitas Tim Anda <br />
-            Dengan <span className="text-orange-500 italic bg-clip-text font-black">Kualitas Sublimasi</span> Presisi
-          </>
+          homePageSettings?.heroTitle ? (
+            <span>{homePageSettings.heroTitle}</span>
+          ) : (
+            <>
+              Wujudkan Identitas Tim Anda <br />
+              Dengan <span className="text-orange-500 italic bg-clip-text font-black">Kualitas Sublimasi</span> Presisi
+            </>
+          )
         }
-        description="ANV Apparel menghadirkan jersey olahraga sublimasi kelas profesional tingkat utama. Hasil cetak warna solid tajam, bahan kain dryfit premium sejuk, jahitan rantai kokoh tangguh, serta bergaransi pengerjaan selesai tepat waktu."
-        ctaText="Lacak Live Order"
+        description={heroDescription}
+        ctaText={heroCtaText}
         onCtaClick={() => {
-          document.getElementById('section-tracking')?.scrollIntoView({ behavior: 'smooth' });
+          if (heroCtaLink.startsWith('#')) {
+            document.getElementById(heroCtaLink.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' });
+          } else {
+            window.open(heroCtaLink, '_blank');
+          }
         }}
-        images={[
-          "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=600&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1592656094267-764a45159073?q=80&w=600&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=600&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=600&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1519766304817-4f37bda74a27?q=80&w=600&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600&auto=format&fit=crop"
-        ]}
+        images={heroImages}
       />
 
       {/* SECTION 2: TENTANG ANV APPAREL (PROFIL SINGKAT) */}
@@ -166,22 +217,22 @@ export default function HomeView({ orders, onNavigate, categories, portfolio }: 
             
             <div className="lg:col-span-6">
               <div className="inline-block bg-orange-600/10 border border-orange-500/20 text-orange-500 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-                Konveksi Profesional Kelas Juara
+                {aboutBadge}
               </div>
               <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-                ANV Apparel Menghidupkan Desain Tim Anda Tanpa Batas
+                {aboutTitle}
               </h2>
               <p className="text-neutral-400 text-lg leading-relaxed mb-6">
-                Kami adalah produsen pakaian olahraga khusus sublimasi (custom jersey sublimation) yang berdedikasi tinggi terhadap kualitas. Berlokasi strategis dengan peralatan cetak modern, kami mencakup seluruh aspek pembuatan apparel mulai dari konsultasi pola desain, pemilihan material berkualitas tinggi, hingga detail finis jahit rantai ganda yang tangkas.
+                {aboutDescription}
               </p>
               <div className="grid grid-cols-2 gap-6 border-t border-neutral-800 pt-6">
                 <div>
-                  <h4 className="text-orange-500 font-black text-3xl">1200+ DPI</h4>
-                  <p className="text-neutral-500 text-sm mt-1">Kejelasan detail & kerataan warna Epson TrueColor</p>
+                  <h4 className="text-orange-500 font-black text-3xl">{aboutStatDpi}</h4>
+                  <p className="text-neutral-550 text-sm mt-1">{aboutStatDpiDesc}</p>
                 </div>
                 <div>
-                  <h4 className="text-orange-500 font-black text-3xl">99.8%</h4>
-                  <p className="text-neutral-500 text-sm mt-1">SLA Pengerjaan On-Time terdaftar</p>
+                  <h4 className="text-orange-500 font-black text-3xl">{aboutStatSla}</h4>
+                  <p className="text-neutral-550 text-sm mt-1">{aboutStatSlaDesc}</p>
                 </div>
               </div>
             </div>
@@ -189,7 +240,7 @@ export default function HomeView({ orders, onNavigate, categories, portfolio }: 
             <div className="lg:col-span-6 relative">
               <div className="aspect-video md:aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl relative border border-neutral-800">
                 <img 
-                  src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?q=80&w=800&auto=format&fit=crop" 
+                  src={aboutImage} 
                   alt="Industrial garment sublimation press" 
                   className="w-full h-full object-cover"
                 />
@@ -218,62 +269,82 @@ export default function HomeView({ orders, onNavigate, categories, portfolio }: 
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-orange-500 text-xs font-black uppercase tracking-wider font-mono">Keunggulan Kami</span>
+            <span className="text-orange-500 text-xs font-black uppercase tracking-wider font-mono">{uspBadge}</span>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 text-white">
-              Kenapa Mempercayakan ANV Apparel?
+              {uspTitle}
             </h2>
             <p className="text-neutral-400 mt-3 text-sm md:text-base">
-              Detail yang kami jaga menjadikan setiap jersey serasa seragam tim profesional liga utama.
+              {uspDescription}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* USP 1 */}
-            <GlowCard 
-              glowColor="orange" 
-              customSize 
-              className="bg-neutral-950 border border-neutral-800 hover:border-orange-500/30 p-8 rounded-2xl transition-all duration-300 group transform hover:-translate-y-1"
-            >
-              <div className="w-14 h-14 bg-orange-600/10 rounded-xl flex items-center justify-center text-orange-500 mb-6 group-hover:bg-orange-600 group-hover:text-white transition-all">
-                <Zap className="w-7 h-7" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Warna Solid & Tajam</h3>
-              <p className="text-neutral-400 text-sm leading-relaxed">
-                Kami menginvestasikan mesin cetak berteknologi mutakhir dengan tinta asli bersertifikasi OEKO-TEX. Menghasilkan gradasi warna super halus dan tidak luntur meski dicuci ratusan kali.
-              </p>
-            </GlowCard>
+            {homePageSettings?.uspItems && homePageSettings.uspItems.length > 0 ? (
+              homePageSettings.uspItems.map((item, idx) => (
+                <GlowCard 
+                  key={idx}
+                  glowColor="orange" 
+                  customSize 
+                  className="bg-neutral-950 border border-neutral-800 hover:border-orange-500/30 p-8 rounded-2xl transition-all duration-300 group transform hover:-translate-y-1"
+                >
+                  <div className="w-14 h-14 bg-orange-600/10 rounded-xl flex items-center justify-center text-orange-500 mb-6 group-hover:bg-orange-600 group-hover:text-white transition-all">
+                    {renderUspIcon(item.icon)}
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-neutral-400 text-sm leading-relaxed">
+                    {item.description}
+                  </p>
+                </GlowCard>
+              ))
+            ) : (
+              <>
+                {/* USP 1 */}
+                <GlowCard 
+                  glowColor="orange" 
+                  customSize 
+                  className="bg-neutral-950 border border-neutral-800 hover:border-orange-500/30 p-8 rounded-2xl transition-all duration-300 group transform hover:-translate-y-1"
+                >
+                  <div className="w-14 h-14 bg-orange-600/10 rounded-xl flex items-center justify-center text-orange-500 mb-6 group-hover:bg-orange-600 group-hover:text-white transition-all">
+                    <Zap className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">Warna Solid & Tajam</h3>
+                  <p className="text-neutral-400 text-sm leading-relaxed">
+                    Kami menginvestasikan mesin cetak berteknologi mutakhir dengan tinta asli bersertifikasi OEKO-TEX. Menghasilkan gradasi warna super halus dan tidak luntur meski dicuci ratusan kali.
+                  </p>
+                </GlowCard>
 
-            {/* USP 2 */}
-            <GlowCard 
-              glowColor="orange" 
-              customSize 
-              className="bg-neutral-950 border border-neutral-800 hover:border-orange-500/30 p-8 rounded-2xl transition-all duration-300 group transform hover:-translate-y-1"
-            >
-              <div className="w-14 h-14 bg-orange-600/10 rounded-xl flex items-center justify-center text-orange-500 mb-6 group-hover:bg-orange-600 group-hover:text-white transition-all">
-                <Shield className="w-7 h-7" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Bahan Premium & Nyaman</h3>
-              <p className="text-neutral-400 text-sm leading-relaxed">
-                Pilihan serat kain dryfit terunggul yang sejuk (breathable), efektif menguapkan kelembaban keringat, antibakteri bau, serta memiliki elastisitas tinggi untuk pergerakan ekstrem.
-              </p>
-            </GlowCard>
+                {/* USP 2 */}
+                <GlowCard 
+                  glowColor="orange" 
+                  customSize 
+                  className="bg-neutral-950 border border-neutral-800 hover:border-orange-500/30 p-8 rounded-2xl transition-all duration-300 group transform hover:-translate-y-1"
+                >
+                  <div className="w-14 h-14 bg-orange-600/10 rounded-xl flex items-center justify-center text-orange-500 mb-6 group-hover:bg-orange-600 group-hover:text-white transition-all">
+                    <Shield className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">Bahan Premium & Nyaman</h3>
+                  <p className="text-neutral-400 text-sm leading-relaxed">
+                    Pilihan serat kain dryfit terunggul yang sejuk (breathable), efektif menguapkan kelembaban keringat, antibakteri bau, serta memiliki elastisitas tinggi untuk pergerakan ekstrem.
+                  </p>
+                </GlowCard>
 
-            {/* USP 3 */}
-            <GlowCard 
-              glowColor="orange" 
-              customSize 
-              className="bg-neutral-950 border border-neutral-800 hover:border-orange-500/30 p-8 rounded-2xl transition-all duration-300 group transform hover:-translate-y-1"
-            >
-              <div className="w-14 h-14 bg-orange-600/10 rounded-xl flex items-center justify-center text-orange-500 mb-6 group-hover:bg-orange-600 group-hover:text-white transition-all">
-                <Clock className="w-7 h-7" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Pengerjaan Tepat Waktu</h3>
-              <p className="text-neutral-450 text-sm leading-relaxed">
-                Prosedur produksi ketat dengan jadwal harian transparan. Kapasitas konveksi mandiri berskala besar menjamin pesanan sesuai SLA tanpa alasan klasik penundaan.
-              </p>
-            </GlowCard>
+                {/* USP 3 */}
+                <GlowCard 
+                  glowColor="orange" 
+                  customSize 
+                  className="bg-neutral-950 border border-neutral-800 hover:border-orange-500/30 p-8 rounded-2xl transition-all duration-300 group transform hover:-translate-y-1"
+                >
+                  <div className="w-14 h-14 bg-orange-600/10 rounded-xl flex items-center justify-center text-orange-500 mb-6 group-hover:bg-orange-600 group-hover:text-white transition-all">
+                    <Clock className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">Pengerjaan Tepat Waktu</h3>
+                  <p className="text-neutral-450 text-sm leading-relaxed">
+                    Prosedur produksi ketat dengan jadwal harian transparan. Kapasitas konveksi mandiri berskala besar menjamin pesanan sesuai SLA tanpa alasan klasik penundaan.
+                  </p>
+                </GlowCard>
+              </>
+            )}
           </div>
-
         </div>
       </section>
 
@@ -703,7 +774,7 @@ export default function HomeView({ orders, onNavigate, categories, portfolio }: 
                         </div>
                         <div className="space-y-1">
                           <p className="text-[10px] font-mono text-neutral-500 tracking-wider">KATEGORI</p>
-                          <h4 className="text-sm font-bold text-white">{trackedOrder.orderType} ({trackedOrder.quantity} pcs)</h4>
+                          <h4 className="text-sm font-bold text-white">{trackedOrder.productType} ({trackedOrder.quantity} pcs)</h4>
                         </div>
                         <div className="space-y-1">
                           <p className="text-[10px] font-mono text-neutral-505 tracking-wider">STATUS DP</p>
@@ -838,7 +909,7 @@ export default function HomeView({ orders, onNavigate, categories, portfolio }: 
                                   {
                                     time: formatDate(updatedDate, 0),
                                     status: 'Manifested',
-                                    note: `[ANV Apparel] Paket berisi ${trackedOrder.quantity} pcs jersey ${trackedOrder.orderType} telah diserahkan di Drop Point ${courier} Buduran, Sidoarjo. No Resi: ${resi}`
+                                    note: `[ANV Apparel] Paket berisi ${trackedOrder.quantity} pcs jersey ${trackedOrder.productType} telah diserahkan di Drop Point ${courier} Buduran, Sidoarjo. No Resi: ${resi}`
                                   },
                                   {
                                     time: formatDate(updatedDate, 3),
@@ -937,7 +1008,7 @@ export default function HomeView({ orders, onNavigate, categories, portfolio }: 
           </div>
 
           <div id="faq-accordion-group" className="space-y-4">
-            {FAQS.map((faq, index) => {
+            {finalFaqs.map((faq, index) => {
               const isOpen = openFaqIndex === index;
               return (
                 <div 
@@ -1001,7 +1072,7 @@ export default function HomeView({ orders, onNavigate, categories, portfolio }: 
               <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-neutral-900 hover:bg-orange-600 border border-neutral-800 hover:border-orange-500 flex items-center justify-center text-neutral-400 hover:text-white transition-all">
                 <Instagram className="w-4 h-4" />
               </a>
-              <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-neutral-900 hover:bg-orange-600 border border-neutral-800 hover:border-orange-500 flex items-center justify-center text-neutral-400 hover:text-white transition-all">
+              <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-neutral-900 hover:bg-orange-600 border border-neutral-800 hover:border-orange-500 flex items-center justify-center text-neutral-400 hover:text-white transition-all">
                 <Phone className="w-4 h-4" />
               </a>
             </div>
@@ -1047,7 +1118,7 @@ export default function HomeView({ orders, onNavigate, categories, portfolio }: 
               <div className="pt-2 border-t border-neutral-900 space-y-2">
                 <p className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-orange-500 shrink-0" />
-                  <span>+62 812-3456-7890</span>
+                  <span>{whatsappNumber.startsWith('62') ? `+62 ${whatsappNumber.substring(2)}` : whatsappNumber}</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-orange-500 shrink-0" />

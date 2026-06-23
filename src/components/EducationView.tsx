@@ -11,12 +11,14 @@ import {
 import { motion } from 'motion/react';
 import { FABRICS } from '../mockData';
 import { FabricMaterial } from '../types';
+import { SanityGuidePageData } from '../lib/sanity';
 
 interface EducationViewProps {
   fabrics?: FabricMaterial[];
+  guidePageSettings?: SanityGuidePageData | null;
 }
 
-export default function EducationView({ fabrics }: EducationViewProps) {
+export default function EducationView({ fabrics, guidePageSettings }: EducationViewProps) {
   const finalFabrics = fabrics && fabrics.length > 0 ? fabrics : FABRICS;
 
   // Calculator States
@@ -93,9 +95,15 @@ export default function EducationView({ fabrics }: EducationViewProps) {
         
         {/* VIEW TITLE */}
         <div className="mb-12 pb-4 border-b border-neutral-800 text-center md:text-left">
-          <span className="text-orange-500 text-xs font-black uppercase tracking-wider font-mono">Book of Sports Textile</span>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mt-1">Panduan Bahan & Ukuran</h1>
-          <p className="text-neutral-400 text-xs md:text-sm mt-2">Dapatkan pemahaman menyeluruh mengenai jenis anyaman kain dryfit serta hitung ukuran jersey tim Anda secara akurat.</p>
+          <span className="text-orange-500 text-xs font-black uppercase tracking-wider font-mono">
+            {guidePageSettings?.badge || "Book of Sports Textile"}
+          </span>
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mt-1">
+            {guidePageSettings?.pageTitle || "Panduan Bahan & Ukuran"}
+          </h1>
+          <p className="text-neutral-400 text-xs md:text-sm mt-2">
+            {guidePageSettings?.pageDescription || "Dapatkan pemahaman menyeluruh mengenai jenis anyaman kain dryfit serta hitung ukuran jersey tim Anda secara akurat."}
+          </p>
         </div>
 
         {/* SECTION 1: MATERIAL SHOWCASE */}
@@ -105,8 +113,12 @@ export default function EducationView({ fabrics }: EducationViewProps) {
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl md:text-2xl font-black text-white">Katalog Tekstur Kain Premium ANV</h2>
-              <p className="text-xs text-neutral-450 uppercase tracking-widest font-mono">Setiap jenis aktivitas olahraga menuntut anyaman serat dryfit spesifik</p>
+              <h2 className="text-xl md:text-2xl font-black text-white">
+                {guidePageSettings?.materialsHeading || "Katalog Tekstur Kain Premium ANV"}
+              </h2>
+              <p className="text-xs text-neutral-450 uppercase tracking-widest font-mono">
+                {guidePageSettings?.materialsSubheading || "Setiap jenis aktivitas olahraga menuntut anyaman serat dryfit spesifik"}
+              </p>
             </div>
           </div>
 
@@ -174,11 +186,13 @@ export default function EducationView({ fabrics }: EducationViewProps) {
           <div className="lg:col-span-5 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl">
             <div className="flex items-center gap-2 mb-4">
               <Calculator className="w-5 h-5 text-orange-500 animate-pulse" />
-              <h3 className="font-extrabold text-md uppercase tracking-wider text-white">Smart Size Recommender</h3>
+              <h3 className="font-extrabold text-md uppercase tracking-wider text-white">
+                {guidePageSettings?.calculatorHeading || "Smart Size Recommender"}
+              </h3>
             </div>
             
             <p className="text-xs text-neutral-400 leading-relaxed mb-6">
-              Kalkulator cerdas interaktif kami akan menganalisis kecocokan postur tinggi dan bobot Anda sesuai pola presisi standar jersey ANV Apparel.
+              {guidePageSettings?.calculatorDescription || "Kalkulator cerdas interaktif kami akan menganalisis kecocokan postur tinggi dan bobot Anda sesuai pola presisi standar jersey ANV Apparel."}
             </p>
 
             <form onSubmit={handleCalculateSize} className="space-y-4">
@@ -265,7 +279,9 @@ export default function EducationView({ fabrics }: EducationViewProps) {
           <div className="lg:col-span-7 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl overflow-hidden">
             <div className="flex items-center gap-2 mb-4">
               <Ruler className="w-5 h-5 text-orange-500" />
-              <h3 className="font-extrabold text-md uppercase tracking-wider text-white">Tabel Standar Ukuran Manual (Panjang x Lebar)</h3>
+              <h3 className="font-extrabold text-md uppercase tracking-wider text-white">
+                {guidePageSettings?.sizeTableHeading || "Tabel Standar Ukuran Manual (Panjang x Lebar)"}
+              </h3>
             </div>
 
             <p className="text-xs text-neutral-400 leading-relaxed mb-4">
