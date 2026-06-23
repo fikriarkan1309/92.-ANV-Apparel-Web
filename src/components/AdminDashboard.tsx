@@ -43,6 +43,7 @@ export default function AdminDashboard({ orders, setOrders, isSupabaseConnected,
   const [editPayment, setEditPayment] = useState<'Belum DP' | 'DP 50%' | 'Lunas'>('Belum DP');
   const [editResi, setEditResi] = useState('');
   const [editCourier, setEditCourier] = useState('J&T');
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   const statusList: OrderStatus[] = [
     'Antrian Desain',
@@ -210,6 +211,117 @@ export default function AdminDashboard({ orders, setOrders, isSupabaseConnected,
       : order.contactNumber;
 
     window.open(`https://wa.me/${targetPhone}?text=${cleanMsg}`, '_blank');
+  };
+
+  // Export a single team roster to CSV/Excel
+  const handleExportRosterToCSV = (order: Order) => {
+    if (!order.roster || order.roster.length === 0) {
+      showToast('Roster pesanan ini masih kosong.', 'error');
+      return;
+    }
+
+    const BOM = '\ufeff';
+    let csvContent = 'No,Nama Pemain,Nomor Punggung,Ukuran Jersey\n';
+
+    order.roster.forEach((player, index) => {
+      const name = (player.name || '').replace(/"/g, '""');
+      const number = (player.number || '').replace(/"/g, '""');
+      const size = (player.size || '').replace(/"/g, '""');
+      csvContent += `${index + 1},"${name}","${number}","${size}"\n`;
+    });
+
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    const sanitizedTeam = order.teamName.replace(/[^a-zA-Z0-9]/g, '_');
+    link.download = `Roster_${order.id}_${sanitizedTeam}.csv`;
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast(`Roster tim ${order.teamName} berhasil diunduh!`, 'success');
+  };
+
+  // Export all rosters to a single CSV/Excel
+  const handleExportAllRostersToCSV = () => {
+    if (orders.length === 0) {
+      showToast('Tidak ada data transaksi untuk diekspor.', 'error');
+      return;
+    }
+
+    const BOM = '\ufeff';
+    let csvContent = 'Kode Pesanan,Nama Tim,Jenis Jersey,No Roster,Nama Pemain,Nomor Punggung,Ukuran Jersey\n';
+
+    orders.forEach((order) => {
+      const orderId = order.id;
+      const teamName = order.teamName.replace(/"/g, '""');
+      const orderType = order.orderType.replace(/"/g, '""');
+
+      if (order.roster && order.roster.length > 0) {
+        order.roster.forEach((player, idx) => {
+          const name = (player.name || '').replace(/"/g, '""');
+          const number = (player.number || '').replace(/"/g, '""');
+          const size = (player.size || '').replace(/"/g, '""');
+          csvContent += `"${orderId}","${teamName}","${orderType}",${idx + 1},"${name}","${number}","${size}"\n`;
+        });
+      } else {
+        csvContent += `"${orderId}","${teamName}","${orderType}",-,"(Belum Mengisi Roster)",-,- \n`;
+      }
+    });
+
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Rekap_Seluruh_Roster_ANV_Apparel.csv`;
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast('Semua roster berhasil diekspor sebagai Excel/CSV!', 'success');
+  };
+
+  // Export general orders metadata to a CSV/Excel
+  const handleExportOrdersToCSV = () => {
+    if (orders.length === 0) {
+      showToast('Tidak ada data transaksi untuk diekspor.', 'error');
+      return;
+    }
+
+    const BOM = '\ufeff';
+    let csvContent = 'Kode Pesanan,Nama Pelanggan,Nama Tim,Jenis Jersey,Jumlah Qty (Pcs),Total Harga,Status Produksi,Status Pembayaran,Tanggal Pemesanan,No Resi,Kurir\n';
+
+    orders.forEach((order) => {
+      const id = order.id;
+      const customer = order.customerName.replace(/"/g, '""');
+      const team = order.teamName.replace(/"/g, '""');
+      const type = order.orderType;
+      const qty = order.quantity;
+      const price = order.totalPrice;
+      const status = order.status;
+      const payment = order.paymentStatus;
+      const date = new Date(order.createdAt).toLocaleDateString('id-ID');
+      const resi = order.resi || '-';
+      const courier = order.courierName || '-';
+
+      csvContent += `"${id}","${customer}","${team}","${type}",${qty},${price},"${status}","${payment}","${date}","${resi}","${courier}"\n`;
+    });
+
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Rekap_Transaksi_ANV_Apparel.csv`;
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast('Rekap transaksi berhasil diekspor sebagai Excel/CSV!', 'success');
   };
 
   // Filter Logic
@@ -574,11 +686,34 @@ VITE_SANITY_DATASET="production"`}
         {/* CORE DATABASE ORDERS LIST CONTAINER */}
         <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl">
           
-          <div className="p-5 border-b border-neutral-800 flex justify-between items-center bg-neutral-900">
-            <h3 className="font-extrabold text-sm uppercase tracking-wider text-white">
-              Data Transaksi Produksi ({filteredOrders.length} Ditemukan)
-            </h3>
-            <span className="text-[10px] font-mono text-neutral-500">Mendukung Live Storage Update</span>
+          <div className="p-5 border-b border-neutral-800 flex flex-col md:flex-row justify-between md:items-center gap-4 bg-neutral-900">
+            <div>
+              <h3 className="font-extrabold text-sm uppercase tracking-wider text-white">
+                Data Transaksi Produksi ({filteredOrders.length} Ditemukan)
+              </h3>
+              <p className="text-[10px] font-mono text-neutral-500 mt-0.5">Mendukung Live Storage Update</p>
+            </div>
+            
+            <div className="flex flex-wrap gap-2">
+              <button
+                id="btn-export-orders"
+                onClick={handleExportOrdersToCSV}
+                className="bg-neutral-950 hover:bg-neutral-850 text-neutral-300 hover:text-white text-[11px] font-bold py-2 px-3 border border-neutral-800 rounded-xl transition-all flex items-center gap-1.5"
+                title="Ekspor seluruh daftar transaksi ke format Excel/CSV"
+              >
+                <Clipboard className="w-3.5 h-3.5 text-orange-500" />
+                <span>Unduh Rekap Transaksi (.csv)</span>
+              </button>
+              <button
+                id="btn-export-rosters"
+                onClick={handleExportAllRostersToCSV}
+                className="bg-orange-650/10 hover:bg-orange-600/20 text-orange-500 hover:text-orange-400 text-[11px] font-black py-2 px-3 border border-orange-500/20 rounded-xl transition-all flex items-center gap-1.5"
+                title="Ekspor seluruh data nama, nomor, dan ukuran jersey tiap tim"
+              >
+                <Users className="w-3.5 h-3.5 text-orange-500" />
+                <span>Unduh Semua Roster (.csv)</span>
+              </button>
+            </div>
           </div>
 
           {filteredOrders.length === 0 ? (
@@ -605,6 +740,7 @@ VITE_SANITY_DATASET="production"`}
                 <tbody className="text-xs divide-y divide-neutral-955">
                   {filteredOrders.map((order) => {
                     const isEditing = editingOrderId === order.id;
+                    const isExpanded = expandedOrderId === order.id;
                     const dateText = new Date(order.createdAt).toLocaleDateString('id-ID', {
                       day: '2-digit',
                       month: 'short',
@@ -612,11 +748,11 @@ VITE_SANITY_DATASET="production"`}
                     });
 
                     return (
-                      <tr 
-                        key={order.id} 
-                        id={`admin-order-record-${order.id}`}
-                        className="hover:bg-neutral-950/20 transition-all group"
-                      >
+                      <React.Fragment key={order.id}>
+                        <tr 
+                          id={`admin-order-record-${order.id}`}
+                          className="hover:bg-neutral-950/20 transition-all group"
+                        >
                         {/* 1. Transaction ID */}
                         <td className="py-4 px-4 font-black text-white font-mono tracking-wider">
                           {order.id}
@@ -630,6 +766,15 @@ VITE_SANITY_DATASET="production"`}
                             <span>{order.teamName} (<strong>{order.orderType}</strong>)</span>
                           </p>
                           <p className="text-neutral-500 text-[10.5px]">WA: {order.contactNumber}</p>
+                          
+                          <button
+                            id={`btn-toggle-roster-${order.id}`}
+                            onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
+                            className="mt-1.5 text-[11px] font-bold text-orange-500 hover:text-orange-400 flex items-center gap-1 transition-all"
+                          >
+                            <span>{expandedOrderId === order.id ? 'Sembunyikan Roster' : `Lihat Roster (${order.roster?.length || 0} Pemain)`}</span>
+                            <ArrowRight className={`w-3 h-3 transition-transform ${expandedOrderId === order.id ? 'rotate-90' : ''}`} />
+                          </button>
                         </td>
 
                         {/* 3. Created Date */}
@@ -782,8 +927,54 @@ VITE_SANITY_DATASET="production"`}
                         </td>
 
                       </tr>
-                    );
-                  })}
+
+                      {isExpanded && (
+                        <tr id={`roster-detail-row-${order.id}`} className="bg-neutral-950/40">
+                          <td colSpan={6} className="p-4 border-l-2 border-orange-500">
+                            <div className="bg-neutral-900/50 p-4 rounded-xl border border-neutral-800">
+                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 border-b border-neutral-800 pb-3">
+                                <div>
+                                  <h6 className="font-extrabold text-xs text-white uppercase tracking-wider">
+                                    Tabel Roster Jersey Tim - {order.teamName} (Total: {order.roster?.length || 0} Player)
+                                  </h6>
+                                  <p className="text-[10px] text-neutral-400">Rincian nama punggung, nomor, dan ukuran jersey untuk pencetakan sublimasi.</p>
+                                </div>
+                                <button
+                                  id={`btn-download-roster-csv-${order.id}`}
+                                  onClick={() => handleExportRosterToCSV(order)}
+                                  className="bg-orange-650/10 hover:bg-orange-600/20 text-orange-500 hover:text-orange-400 font-bold text-[11px] py-1.5 px-3 rounded-lg border border-orange-500/25 flex items-center gap-1.5 transition-all"
+                                >
+                                  <Clipboard className="w-3.5 h-3.5" />
+                                  <span>Unduh Roster Excel (.csv)</span>
+                                </button>
+                              </div>
+                              
+                              {order.roster && order.roster.length > 0 ? (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 max-h-[220px] overflow-y-auto pr-1">
+                                  {order.roster.map((player, idx) => (
+                                    <div key={idx} className="bg-neutral-950 border border-neutral-800 p-2.5 rounded-lg flex items-center justify-between gap-1.5">
+                                      <div className="min-w-0 flex-grow">
+                                        <p className="font-bold text-white text-[11px] truncate" title={player.name}>
+                                          {player.name || '-'}
+                                        </p>
+                                        <span className="text-[9.5px] text-neutral-500 font-mono">No. {player.number || '00'}</span>
+                                      </div>
+                                      <span className="bg-orange-500/10 text-orange-500 border border-orange-500/10 text-[10px] font-black px-2 py-0.5 rounded shrink-0">
+                                        {player.size || '-'}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-xs text-neutral-500 italic p-2">Formulir roster kosong atau belum dilengkapi oleh pembeli.</p>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
                 </tbody>
               </table>
             </div>
