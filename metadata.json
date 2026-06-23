@@ -1,0 +1,6 @@
+{
+  "name": "ANV Apparel",
+  "description": "Platform Konveksi Jersey Sublimasi Profesional, Custom 2D Visualizer, Edukasi Bahan, dan Pelacakan Pesanan Real-time.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
