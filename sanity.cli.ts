@@ -7,6 +7,9 @@ export default defineCliConfig({
   api: {
     projectId: projectId,
     dataset: dataset
+  },
+  // Tambahkan baris deployment di bawah sini:
+  deployment: {
+    appId: 'ov39y534uiudw71i0w26ju33'
   }
 });
-
