@@ -1,7 +1,7 @@
 import { createClient } from '@sanity/client';
 import { FabricMaterial, ProductCatalogItem, PortfolioItem } from '../types';
 
-const projectId = import.meta.env.VITE_SANITY_PROJECT_ID || '';
+const projectId = import.meta.env.VITE_SANITY_PROJECT_ID || '894fyinb';
 const dataset = import.meta.env.VITE_SANITY_DATASET || 'production';
 
 export const isSanityConfigured = 
