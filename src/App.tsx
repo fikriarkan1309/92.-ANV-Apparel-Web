@@ -14,7 +14,16 @@ import { INITIAL_ORDERS, FABRICS, CATEGORIES, PORTFOLIO } from './mockData';
 import { motion, AnimatePresence } from 'motion/react';
 import ToastContainer from './components/ui/ToastContainer';
 import { isSupabaseConfigured, fetchSupabaseOrders } from './lib/supabase';
-import { isSanityConfigured, fetchSanityFabrics, fetchSanityCatalog, fetchSanityPortfolio } from './lib/sanity';
+import { 
+  isSanityConfigured, 
+  fetchSanityFabrics, 
+  fetchSanityCatalog, 
+  fetchSanityPortfolio,
+  fetchSanityHomePage,
+  fetchSanityGuidePage,
+  SanityHomePageData,
+  SanityGuidePageData
+} from './lib/sanity';
 import { showToast } from './utils/toast';
 
 export default function App() {
@@ -23,6 +32,8 @@ export default function App() {
   const [fabrics, setFabrics] = useState<FabricMaterial[]>([]);
   const [categories, setCategories] = useState<ProductCatalogItem[]>([]);
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
+  const [homePageSettings, setHomePageSettings] = useState<SanityHomePageData | null>(null);
+  const [guidePageSettings, setGuidePageSettings] = useState<SanityGuidePageData | null>(null);
   const [isAdminApproved, setIsAdminApproved] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -70,10 +81,12 @@ export default function App() {
 
       // 2. Load CMS content from Sanity if configured
       if (isSanityConfigured) {
-        const [sanityFabrics, sanityCatalog, sanityPortfolio] = await Promise.all([
+        const [sanityFabrics, sanityCatalog, sanityPortfolio, sanityHome, sanityGuide] = await Promise.all([
           fetchSanityFabrics(),
           fetchSanityCatalog(),
-          fetchSanityPortfolio()
+          fetchSanityPortfolio(),
+          fetchSanityHomePage(),
+          fetchSanityGuidePage()
         ]);
 
         let hasSyncedAny = false;
@@ -97,6 +110,16 @@ export default function App() {
           hasSyncedAny = true;
         } else {
           setPortfolio(PORTFOLIO);
+        }
+
+        if (sanityHome) {
+          setHomePageSettings(sanityHome);
+          hasSyncedAny = true;
+        }
+
+        if (sanityGuide) {
+          setGuidePageSettings(sanityGuide);
+          hasSyncedAny = true;
         }
 
         if (hasSyncedAny) {
@@ -153,11 +176,15 @@ export default function App() {
                 categories={categories}
                 portfolio={portfolio}
                 fabrics={fabrics}
+                homePageSettings={homePageSettings}
               />
             )}
 
             {activeTab === 'guide' && (
-              <EducationView fabrics={fabrics} />
+              <EducationView 
+                fabrics={fabrics} 
+                guidePageSettings={guidePageSettings}
+              />
             )}
 
             {activeTab === 'order' && (
