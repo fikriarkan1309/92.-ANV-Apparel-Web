@@ -2,13 +2,16 @@ import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { schemaTypes } from './schemas';
 
+// Fallback is helpfully structured to support environment variables during local or cloud builds
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID || process.env.VITE_SANITY_PROJECT_ID || 'your-sanity-project-id';
+const dataset = process.env.SANITY_STUDIO_DATASET || process.env.VITE_SANITY_DATASET || 'production';
+
 export default defineConfig({
   name: 'default',
   title: 'ANV Apparel CMS Studio',
 
-  // Fallback to demo values if env vars are not set during studio execution
-  projectId: 'your-sanity-project-id',
-  dataset: 'production',
+  projectId: projectId,
+  dataset: dataset,
 
   plugins: [
     structureTool(),
@@ -18,3 +21,4 @@ export default defineConfig({
     types: schemaTypes,
   },
 });
+
